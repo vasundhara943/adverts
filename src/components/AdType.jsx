@@ -10,6 +10,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { FormControl, Select, MenuItem, InputLabel, TextField } from "@mui/material";
 
+import AdDesc from "./AdDesc";
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -50,6 +52,7 @@ const AdType = () => {
 
   return (
     <>
+        <AdDesc/>
       
         <div className="pt-10 flex justify-center items-center mx-20">
         <div className="grid grid-cols-2 grid-rows-1 gap-10 items-center">
