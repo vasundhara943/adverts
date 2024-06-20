@@ -24,7 +24,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import AdDesc from "./AdDesc";
 
-export default function Schedule(rows) {
+export default function Schedule(props) {
   const [adMaster, setAdMaster] = React.useState("");
   const [adType, setAdType] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
@@ -50,7 +50,7 @@ export default function Schedule(rows) {
 
   const freqvals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60];
   const adtypes = ["Lband", "Aston", "Bug"];
-  const values1 = localStorage.getItem("nameAndDates");
+  const values1 = localStorage.getItem("tableData");
   console.log(values1);
 
   return (

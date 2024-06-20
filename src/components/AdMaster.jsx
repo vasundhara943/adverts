@@ -47,15 +47,18 @@ export default function AdMaster() {
       cname,
       adtype,
       filePath,
-      startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
-      endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
+      startDate,
+      //: startDate ? startDate.format("YYYY-MM-DD") : "",
+      endDate,
+      //: endDate ? endDate.format("YYYY-MM-DD") : "",
       active,
     };
-    setNameAndDates([...nameAndDates, carryData]);
+    // setNameAndDates([...nameAndDates, carryData]);
     setTableData([...tableData, newRow]);
     console.log([...tableData, newRow]); // Log the new table data for debugging
-    console.log([...nameAndDates, carryData]);
-    localStorage.setItem("nameAndDates", nameAndDates);
+    // console.log([...nameAndDates, carryData]);
+    // localStorage.setItem("nameAndDates", nameAndDates);
+    localStorage.setItem("tableData",tableData)
   };
 
   const values = ["Lband", "Aston", "Bug"];
@@ -72,7 +75,6 @@ export default function AdMaster() {
                 id="cname"
                 value={cname}
                 onChange={(cname) => setCname(cname.target.value)}
-                //   renderInput={(params) => <TextField {...params} />}
               />
             </div>
             <div>
@@ -155,8 +157,8 @@ export default function AdMaster() {
                   <TableCell>{row.cname}</TableCell>
                   <TableCell>{row.adtype}</TableCell>
                   <TableCell>{row.filePath}</TableCell>
-                  <TableCell>{row.startDate}</TableCell>
-                  <TableCell>{row.endDate}</TableCell>
+                  <TableCell>{row.startDate ? startDate.format("YYYY-MM-DD") : ""}</TableCell>
+                  <TableCell>{row.endDate ? endDate.format("YYYY-MM-DD") : ""}</TableCell>
                   <TableCell>{row.active ? "Yes" : "No"}</TableCell>
                 </TableRow>
               ))}
