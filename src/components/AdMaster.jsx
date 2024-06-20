@@ -58,7 +58,7 @@ export default function AdMaster() {
     console.log([...tableData, newRow]); // Log the new table data for debugging
     // console.log([...nameAndDates, carryData]);
     // localStorage.setItem("nameAndDates", nameAndDates);
-    localStorage.setItem("tableData",tableData)
+    localStorage.setItem("tableData",JSON.stringify([...tableData, newRow]))
   };
 
   const values = ["Lband", "Aston", "Bug"];

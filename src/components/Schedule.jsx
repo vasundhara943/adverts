@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import {
   Switch,
@@ -33,6 +34,7 @@ export default function Schedule(props) {
   const [endTime, setEndTime] = React.useState(null);
   const [frequency, setFrequency] = React.useState("");
   const [tableData, setTableData] = React.useState([]);
+  const [values, setValues] = React.useState([]);
 
   const handleSubmit = () => {
     const newRow = {
@@ -50,8 +52,15 @@ export default function Schedule(props) {
 
   const freqvals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60];
   const adtypes = ["Lband", "Aston", "Bug"];
-  const values1 = localStorage.getItem("tableData");
-  console.log(values1);
+  useEffect(() => {
+    const values1 = localStorage.getItem("tableData");
+    if(values1){
+      setValues(JSON.parse(values1));
+    }
+  }, [])
+  // const values1 = localStorage.getItem("tableData");
+  console.log(values);
+  console.log(typeof values)
 
   return (
     <>
