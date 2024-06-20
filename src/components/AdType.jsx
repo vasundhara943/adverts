@@ -1,15 +1,14 @@
 import React from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import { FormControl, Select, MenuItem, InputLabel, TextField } from "@mui/material";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -31,30 +30,63 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createData(name) {
-  return { name };
-}
-
-const rows = [
-  createData("L Band"),
-  createData("Aston"),
-  createData("Bug"),
-];
+const values = ["Lband", "Aston", "Bug"];
 
 const AdType = () => {
+  const [adtype, setAdtype] = React.useState("");
+  const [tableData, setTableData] = React.useState([]);
+  const [cname, setCname] = React.useState("");
+
+  const handleSubmit = () => {
+    const newRow = {
+      id: tableData.length + 1,
+      cname,
+      adtype
+    };
+
+    setTableData([...tableData, newRow]);
+    console.log([...tableData, newRow]); // Log the new table data for debugging
+  };
+
   return (
     <>
+      
+        <div className="pt-10 flex justify-center items-center mx-20">
+        <div className="grid grid-cols-2 grid-rows-1 gap-10 items-center">
+          <div>
+            <InputLabel id="cname">Channel Name</InputLabel>
+            <TextField
+              id="cname"
+              value={cname}
+              onChange={(cname) => setCname(cname.target.value)}
+            />
+          </div>
+          <div>
+            <InputLabel id="adtype">Ad Type</InputLabel>
+            <FormControl sx={{ width: "280px" }}>
+              {/* <Select
+                label="Ad Type"
+                labelid="adtype"
+                name="adtype"
+                value={adtype}
+                onChange={(event) => setAdtype(event.target.value)}
+              >
+                {values.map((val, index) => (
+                  <MenuItem key={index} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+              </Select> */}
+              <TextField
+              id="adtype"
+              value={adtype}
+              onChange={(type) => setAdtype(type.target.value)}
+            />
+            </FormControl>
+          </div>
+          </div>
+      </div>
       <div className="pt-10 flex justify-center items-center">
-        <Box
-          component="form"
-          sx={{
-            "& > :not(style)": { m: 1, width: "60ch", maxWidth: "90%" },
-          }}
-          noValidate
-          autoComplete="off"
-        >
-          <TextField id="outlined-basic" label="Ad Type" variant="outlined" />
-        </Box>
         <Button
           variant="contained"
           sx={{
@@ -62,31 +94,27 @@ const AdType = () => {
             width: "100px",
             height: "54px",
           }}
+          onClick={handleSubmit}
         >
           Save
         </Button>
-      </div>
+        </div>
       <div className="pt-10 justify-center items-center">
-          <Table
-            sx={{ minWidth: 500, width: '550px',  margin: "auto"}}
-            aria-label="customized table"
-          >
+          <Table sx={{ minWidth: 500, width: '550px',  margin: "auto"}} >
             <TableHead>
               <TableRow>
-                <StyledTableCell align="center">Ad Type</StyledTableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Channel Name</TableCell>
+                <TableCell>Ad Type</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <StyledTableRow key={row.name}>
-                  <StyledTableCell align="center" component="th" scope="row">
-                    {row.name}
-                  </StyledTableCell>
-                  {/* <StyledTableCell align="right">{row.calories}</StyledTableCell>
-              <StyledTableCell align="right">{row.fat}</StyledTableCell>
-              <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="right">{row.protein}</StyledTableCell> */}
-                </StyledTableRow>
+              {tableData.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.id}</TableCell>
+                  <TableCell>{row.cname}</TableCell>
+                  <TableCell>{row.adtype}</TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

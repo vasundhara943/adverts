@@ -13,8 +13,8 @@ function App() {
       <Route path="/" exact element={<Login />} />
         <Route path="/describe_ad" exact element={<AdDesc />} />
         <Route path="/login" exact element={<Login />} />
-        <Route path="/adtype" exact element={<AdType/>} />
-        <Route path="/schedule" exact element={<Schedule/>}/>
+        {/* <Route path="/adtype" exact element={<AdType/>} />
+        <Route path="/schedule" exact element={<Schedule/>}/> */}
       </Routes>
     </BrowserRouter>
   );

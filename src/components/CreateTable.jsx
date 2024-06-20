@@ -32,7 +32,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 function createData(type, sdate, stime, edate, etime, active) {
   const isActive = active ? 'Yes' : 'No'
-  return { type, sdate, stime, edate, etime, isActive };
+  return { type, sdate, stime, edate, etime, isActive};
 }
 
 const rows = [
@@ -45,7 +45,7 @@ const rows = [
 export default function CreateTable() {
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+      <Table sx={{ minWidth: 700 }} >
         <TableHead>
           <TableRow>
             <StyledTableCell>Ad Type</StyledTableCell>
