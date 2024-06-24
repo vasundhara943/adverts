@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import {
   Switch,
@@ -22,59 +23,79 @@ import {
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-import AdDesc from "./AdDesc";
-
 export default function AdMaster() {
-  const [cname, setCname] = React.useState("");
+  const [channel, setChannel] = React.useState("")
+  const [aname, setAname] = React.useState("");
   const [adtype, setAdtype] = React.useState("");
   const [filePath, setFilePath] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
   const [active, setActive] = React.useState(true);
+
   const [tableData, setTableData] = React.useState([]);
-  const [nameAndDates, setNameAndDates] = React.useState([]);
+  const [values, setAdtypeList] = React.useState([]);
+  const [channelList, setChannelList] = React.useState([])
 
   const handleSubmit = () => {
-    const carryData = {
-      cname,
-      startDate,
-      //   : startDate ? startDate.format("YYYY-MM-DD") : "",
-      endDate,
-      // : endDate ? endDate.format("YYYY-MM-DD") : "",
-    };
     const newRow = {
       id: tableData.length + 1,
-      cname,
+      aname,
       adtype,
       filePath,
       startDate,
-      //: startDate ? startDate.format("YYYY-MM-DD") : "",
       endDate,
-      //: endDate ? endDate.format("YYYY-MM-DD") : "",
       active,
     };
-    // setNameAndDates([...nameAndDates, carryData]);
     setTableData([...tableData, newRow]);
-    console.log([...tableData, newRow]); // Log the new table data for debugging
-    // console.log([...nameAndDates, carryData]);
-    // localStorage.setItem("nameAndDates", nameAndDates);
-    localStorage.setItem("tableData",JSON.stringify([...tableData, newRow]))
+    // console.log([...tableData, newRow]); // Log the new table data for debugging
+    localStorage.setItem("tableData", JSON.stringify([...tableData, newRow]));
   };
 
-  const values = ["Lband", "Aston", "Bug"];
+  useEffect(() => {
+    const values1 = localStorage.getItem("AdType");
+    if (values1) {
+      // console.log(values1);
+      setChannelList(JSON.parse(values1).map((val) => val.cname));
+      setAdtypeList(JSON.parse(values1).map((val) => val.adtype));
+      // setStartDateLimit(JSON.parse(values1).map((val) => val.startDate));
+      // setEndDateLimit(JSON.parse(values1).map((val) => val.endDate));
+    }
+  }, []);
+
+  const editValues = (id) => {
+    
+  }
+  //const values = ["Lband", "Aston", "Bug"];
 
   return (
     <>
-      <AdDesc />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div className="pt-10 flex justify-center items-center mx-20">
-          <div className="grid grid-cols-3 grid-rows-2 gap-10 items-center">
+          <div className="grid grid-cols-4 grid-rows-2 gap-10 items-center">
+          <div>
+              <InputLabel id="adtype">Channel</InputLabel>
+              <FormControl sx={{ width: "280px" }}>
+                <Select
+                  label="Channel"
+                  labelid="channel"
+                  name="channel"
+                  value={channel}
+                  onChange={(event) => setChannel(event.target.value)}
+                >
+                  {channelList.map((val, index) => (
+                    <MenuItem key={index} value={val}>
+                      {val}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
             <div>
-              <InputLabel id="cname">Name</InputLabel>
+              <InputLabel id="aname">Ad Name</InputLabel>
               <TextField
-                id="cname"
-                value={cname}
-                onChange={(cname) => setCname(cname.target.value)}
+                id="aname"
+                value={aname}
+                onChange={(aname) => setAname(aname.target.value)}
               />
             </div>
             <div>
@@ -101,7 +122,6 @@ export default function AdMaster() {
                 id="filePath"
                 value={filePath}
                 onChange={(filePath) => setFilePath(filePath.target.value)}
-                //   renderInput={(params) => <TextField {...params} />}
               />
             </div>
             <div>
@@ -154,12 +174,25 @@ export default function AdMaster() {
               {tableData.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.cname}</TableCell>
+                  <TableCell>{row.aname}</TableCell>
                   <TableCell>{row.adtype}</TableCell>
                   <TableCell>{row.filePath}</TableCell>
-                  <TableCell>{row.startDate ? startDate.format("YYYY-MM-DD") : ""}</TableCell>
-                  <TableCell>{row.endDate ? endDate.format("YYYY-MM-DD") : ""}</TableCell>
+                  <TableCell>
+                    {row.startDate ? startDate.format("YYYY-MM-DD") : ""}
+                  </TableCell>
+                  <TableCell>
+                    {row.endDate ? endDate.format("YYYY-MM-DD") : ""}
+                  </TableCell>
                   <TableCell>{row.active ? "Yes" : "No"}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={editValues(row.id)}
+                    >
+                      Edit
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

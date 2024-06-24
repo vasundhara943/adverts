@@ -32,12 +32,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const values = ["Lband", "Aston", "Bug"];
+// const values = ["Lband", "Aston", "Bug"];
 
 const AdType = () => {
   const [adtype, setAdtype] = React.useState("");
   const [tableData, setTableData] = React.useState([]);
   const [cname, setCname] = React.useState("");
+  const [carryData, setCarryData] = React.useState([]);
 
   const handleSubmit = () => {
     const newRow = {
@@ -46,13 +47,15 @@ const AdType = () => {
       adtype
     };
 
+    // setCarryData([...carryData, adtype])
     setTableData([...tableData, newRow]);
-    console.log([...tableData, newRow]); // Log the new table data for debugging
+    console.log([...tableData, newRow]);
+    localStorage.setItem("AdType", JSON.stringify([...tableData,newRow]))
   };
 
   return (
     <>
-        <AdDesc/>
+        {/* <AdDesc/> */}
       
         <div className="pt-10 flex justify-center items-center mx-20">
         <div className="grid grid-cols-2 grid-rows-1 gap-10 items-center">

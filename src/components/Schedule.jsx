@@ -24,6 +24,7 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import AdDesc from "./AdDesc";
+import EditBtn from "./EditBtn";
 
 export default function Schedule(props) {
   const [adMaster, setAdMaster] = React.useState("");
@@ -34,7 +35,9 @@ export default function Schedule(props) {
   const [endTime, setEndTime] = React.useState(null);
   const [frequency, setFrequency] = React.useState("");
   const [tableData, setTableData] = React.useState([]);
-  const [values, setValues] = React.useState([]);
+  const [cnames, setCnames] = React.useState([]);
+  const [startDateLimit, setStartDateLimit] = React.useState([]);
+  const [endDateLimit, setEndDateLimit] = React.useState([]);
 
   const handleSubmit = () => {
     const newRow = {
@@ -50,21 +53,29 @@ export default function Schedule(props) {
     console.log([...tableData, newRow]); // Log the new table data for debugging
   };
 
+  const editValues = () => {
+    // setAdMaster();
+    // setAdType();
+    
+    
+  }
+
   const freqvals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60];
   const adtypes = ["Lband", "Aston", "Bug"];
   useEffect(() => {
     const values1 = localStorage.getItem("tableData");
-    if(values1){
-      setValues(JSON.parse(values1));
+    if (values1) {
+      const val1 = JSON.parse(values1);
+
+      setCnames(JSON.parse(values1).map((val) => val.cname));
+      // setStartDateLimit(JSON.parse(values1).map((val) => val.startDate));
+      // setEndDateLimit(JSON.parse(values1).map((val) => val.endDate));
     }
-  }, [])
-  // const values1 = localStorage.getItem("tableData");
-  console.log(values);
-  console.log(typeof values)
+  }, []);
 
   return (
     <>
-      <AdDesc />
+      {/* <AdDesc /> */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div className="pt-10 flex justify-center items-center mx-20">
           <div className="grid grid-cols-4 grid-rows-2 gap-10 items-center">
@@ -78,7 +89,7 @@ export default function Schedule(props) {
                   value={adMaster}
                   onChange={(event) => setAdMaster(event.target.value)}
                 >
-                  {adtypes.map((val, index) => (
+                  {cnames.map((val, index) => (
                     <MenuItem key={index} value={val}>
                       {val}
                     </MenuItem>
@@ -111,6 +122,8 @@ export default function Schedule(props) {
                 value={startDate}
                 onChange={(date) => setStartDate(date)}
                 renderInput={(params) => <TextField {...params} />}
+                // minDate={startDateLimit}
+                // maxDate={endDateLimit}
               />
             </div>
             <div>
@@ -190,6 +203,15 @@ export default function Schedule(props) {
                   <TableCell>{row.endDate}</TableCell>
                   <TableCell>{row.endTime}</TableCell>
                   <TableCell>{row.frequency}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={editValues(row.id)}
+                    >
+                      Edit
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
