@@ -22,6 +22,8 @@ import {
   LocalizationProvider,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import 'dayjs/locale/en-gb';
+import dayjs from "dayjs";
 
 export default function AdMaster() {
   const [channel, setChannel] = React.useState("")
@@ -30,15 +32,16 @@ export default function AdMaster() {
   const [filePath, setFilePath] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-  const [active, setActive] = React.useState(true);
-
+  const [active, setActive] = React.useState("");
   const [tableData, setTableData] = React.useState([]);
-  const [values, setAdtypeList] = React.useState([]);
-  const [channelList, setChannelList] = React.useState([])
+  const [adtypelist, setAdtypeList] = React.useState([]);
+  const [channelList, setChannelList] = React.useState([]);
+  const [carryData, setCarryData] = React.useState([]);
 
   const handleSubmit = () => {
     const newRow = {
       id: tableData.length + 1,
+      channel,
       aname,
       adtype,
       filePath,
@@ -46,9 +49,21 @@ export default function AdMaster() {
       endDate,
       active,
     };
+    const str = `${channel}_${aname}_${adtype}`;
+    const carryRow = {
+      id: tableData.length + 1,
+      str,
+      filePath,
+      startDate,
+      endDate,
+      active
+    };
+
+    setCarryData([...carryData, carryRow]);    
     setTableData([...tableData, newRow]);
     // console.log([...tableData, newRow]); // Log the new table data for debugging
-    localStorage.setItem("tableData", JSON.stringify([...tableData, newRow]));
+    //localStorage.setItem("tableData", JSON.stringify([...tableData, newRow]));
+    localStorage.setItem("carry", JSON.stringify([...carryData, carryRow]));
   };
 
   useEffect(() => {
@@ -62,14 +77,26 @@ export default function AdMaster() {
     }
   }, []);
 
-  const editValues = (id) => {
+  const editValue = (id) => {
+    console.log(id);
+    console.log(tableData[id-1])
     
+    setChannel(tableData[id-1].channel);
+    setAname(tableData[id-1].aname);
+    setAdtype(tableData[id-1].adtype);
+    setFilePath(tableData[id-1].filePath);
+    setStartDate(tableData[id-1].startDate);
+    setEndDate(tableData[id-1].endDate);
+    setActive(tableData[id-1].active);
+
   }
   //const values = ["Lband", "Aston", "Bug"];
+  const values = Array.from(new Set(adtypelist));
+  const channels = Array.from(new Set(channelList));
 
   return (
     <>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
         <div className="pt-10 flex justify-center items-center mx-20">
           <div className="grid grid-cols-4 grid-rows-2 gap-10 items-center">
           <div>
@@ -82,7 +109,7 @@ export default function AdMaster() {
                   value={channel}
                   onChange={(event) => setChannel(event.target.value)}
                 >
-                  {channelList.map((val, index) => (
+                  {channels.map((val, index) => (
                     <MenuItem key={index} value={val}>
                       {val}
                     </MenuItem>
@@ -102,7 +129,7 @@ export default function AdMaster() {
               <InputLabel id="adtype">Ad Type</InputLabel>
               <FormControl sx={{ width: "280px" }}>
                 <Select
-                  label="Ad Type"
+                  // label="Ad Type"
                   labelid="adtype"
                   name="adtype"
                   value={adtype}
@@ -127,7 +154,7 @@ export default function AdMaster() {
             <div>
               <InputLabel id="startdate">Start Date</InputLabel>
               <DatePicker
-                label="Start Date"
+                // label="Start Date"
                 value={startDate}
                 onChange={(date) => setStartDate(date)}
                 renderInput={(params) => <TextField {...params} />}
@@ -136,19 +163,29 @@ export default function AdMaster() {
             <div>
               <InputLabel id="enddate">End Date</InputLabel>
               <DatePicker
-                label="End Date"
+                // label="End Date"
                 value={endDate}
                 onChange={(date) => setEndDate(date)}
+                disablePast={true}
                 renderInput={(params) => <TextField {...params} />}
               />
             </div>
             <div>
               <InputLabel id="active">Active?</InputLabel>
-              <Switch
+              {/* <Switch
                 labelid="active"
-                checked={active}
+                //defaultChecked={active}
                 onChange={(event) => setActive(event.target.checked)}
-              />
+              /> */}
+              <FormControl sx={{ width: "280px" }}>
+              <Select
+              value = {active}
+              onChange={(event) => setActive(event.target.value)}>
+                {["Yes", "No"].map((val,index) => (
+                  <MenuItem key={index} value={val}>{val}</MenuItem>
+                ))}
+              </Select>
+              </FormControl>
             </div>
           </div>
         </div>
@@ -162,6 +199,7 @@ export default function AdMaster() {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
+                <TableCell>Channel</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Ad Type</TableCell>
                 <TableCell>File Path</TableCell>
@@ -174,21 +212,22 @@ export default function AdMaster() {
               {tableData.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.id}</TableCell>
+                  <TableCell>{row.channel}</TableCell>
                   <TableCell>{row.aname}</TableCell>
                   <TableCell>{row.adtype}</TableCell>
                   <TableCell>{row.filePath}</TableCell>
                   <TableCell>
-                    {row.startDate ? startDate.format("YYYY-MM-DD") : ""}
+                    {row.startDate ? row.startDate.format("YYYY-MM-DD") : ""}
                   </TableCell>
                   <TableCell>
-                    {row.endDate ? endDate.format("YYYY-MM-DD") : ""}
+                    {row.endDate ? row.endDate.format("YYYY-MM-DD") : ""}
                   </TableCell>
-                  <TableCell>{row.active ? "Yes" : "No"}</TableCell>
+                  <TableCell>{row.active}</TableCell>
                   <TableCell>
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={editValues(row.id)}
+                      onClick={() => editValue(row.id)}
                     >
                       Edit
                     </Button>
