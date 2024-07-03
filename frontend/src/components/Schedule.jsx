@@ -27,11 +27,11 @@ import 'dayjs/locale/en-gb';
 import dayjs from "dayjs";
 
 import AdDesc from "./AdDesc";
-import EditBtn from "./EditBtn";
+// import EditBtn from "./EditBtn";
 
 export default function Schedule(props) {
   const [adMaster, setAdMaster] = React.useState("");
-  const [adType, setAdType] = React.useState("");
+  //const [adType, setAdType] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
   const [startTime, setStartTime] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
