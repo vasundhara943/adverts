@@ -15,7 +15,7 @@ app.get("/",(req,res)=>{
 
 app.post("/adtype/add",(req,res)=>{
     const {channel, adtype}=req.body;
-    const query="INSERT INTO adverts.adtype (channel,adtype) VALUES (?,?)";
+    const query="INSERT INTO advert.adtype (channel,adtype) VALUES (?,?)";
     try{
         pool.query(query,[channel,adtype])
         .then((result)=>{
@@ -31,7 +31,7 @@ app.post("/adtype/add",(req,res)=>{
 });
 
 app.get("/adtype/get",(req,res)=>{
-    const query="SELECT * FROM adverts.adtype";
+    const query="SELECT * FROM advert.adtype";
     pool.query(query)
     .then((result)=>{
         res.status(200).json({data:result[0]});
@@ -40,7 +40,7 @@ app.get("/adtype/get",(req,res)=>{
 
 
 app.get("/admaster/get", (req,res) => {
-    const query="SELECT * FROM adverts.admaster";
+    const query="SELECT * FROM advert.admaster";
     pool.query(query)
     .then((result)=>{
         res.status(200).json({data:result[0]});
@@ -48,12 +48,13 @@ app.get("/admaster/get", (req,res) => {
 });
 
 app.post("/admaster/add",(req,res)=>{
-    const {channel, aname, adtype, filepath, startdate, enddate, active}=req.body;
-    const query="INSERT INTO adverts.admaster (channel, name, adtype, filepath, startdate, enddate, active) VALUES (?,?,?,?,?,?,?)";
+    const {channel, aname, adtype, filePath, startDate, endDate, active}=req.body;
+    //console.log(channel, aname, adtype, filePath, startDate, endDate, active);
+    const query="INSERT INTO advert.admaster (channel, name, adtype, filepath, startdate, enddate, active) VALUES (?,?,?,?,?,?,?)";
     try{
-        pool.query(query,[channel,aname, adtype, filepath, startdate, enddate, active])
+        pool.query(query,[channel,aname, adtype, filePath, startDate, endDate, active])
         .then((result)=>{
-            res.status(200).json({message:"Ad added successfully"});
+            res.status(200).json({message:"Admaster added successfully"});
         })
     }catch(err){
         res.status(500).json({message:err});
