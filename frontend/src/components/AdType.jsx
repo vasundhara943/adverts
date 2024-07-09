@@ -1,46 +1,27 @@
 import React, { useEffect } from "react";
-import { styled } from "@mui/material/styles";
+import {  } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { FormControl, TextField, InputLabel } from "@mui/material";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
 
 const AdType = () => {
   const [adtype, setAdtype] = React.useState("");
   const [tableData, setTableData] = React.useState([]);
-  const [cname, setCname] = React.useState("");
+  const [channel, setChannel] = React.useState("");
 
   console.log(tableData);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/get");
+        const response = await axios.get("http://localhost:8000/adtype/get");
         console.log('Response:', response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
@@ -58,7 +39,7 @@ const AdType = () => {
   const handleSubmit = async () => {
     const newRow = {
       id: tableData.length + 1,
-      cname,
+      channel,
       adtype
     };
   
@@ -67,13 +48,13 @@ const AdType = () => {
     localStorage.setItem("AdType", JSON.stringify([...tableData, newRow]));
   
     try {
-      const response = await axios.post("http://localhost:8000/add", {
-        cname,
+      const response = await axios.post("http://localhost:8000/adtype/add", {
+        channel,
         adtype
       });
       console.log('Response:', response.data);
       // Refetch the table data to ensure consistency
-      const updatedData = await axios.get("http://localhost:8000/get");
+      const updatedData = await axios.get("http://localhost:8000/adtype/get");
       if (Array.isArray(updatedData.data.data)) {
         setTableData(updatedData.data.data);
       } else {
@@ -89,11 +70,11 @@ const AdType = () => {
       <div className="pt-10 flex justify-center items-center mx-20">
         <div className="grid grid-cols-2 grid-rows-1 gap-10 items-center">
           <div>
-            <InputLabel id="cname">Channel Name</InputLabel>
+            <InputLabel id="channel">Channel Name</InputLabel>
             <TextField
-              id="cname"
-              value={cname}
-              onChange={(event) => setCname(event.target.value)}
+              id="channel"
+              value={channel}
+              onChange={(event) => setChannel(event.target.value)}
             />
           </div>
           <div>
@@ -125,18 +106,18 @@ const AdType = () => {
         <Table sx={{ minWidth: 500, width: '550px', margin: "auto" }} >
           <TableHead>
             <TableRow>
-              <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Channel Name</StyledTableCell>
-              <StyledTableCell>Ad Type</StyledTableCell>
+              <TableCell>ID</TableCell>
+              <TableCell>Channel Name</TableCell>
+              <TableCell>Ad Type</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {Array.isArray(tableData) && tableData.map((row) => (
-              <StyledTableRow key={row.id}>
-                <StyledTableCell>{row.id}</StyledTableCell>
-                <StyledTableCell>{row.channel}</StyledTableCell>
-                <StyledTableCell>{row.adtype}</StyledTableCell>
-              </StyledTableRow>
+              <TableRow key={row.id}>
+                <TableCell>{row.id}</TableCell>
+                <TableCell>{row.channel}</TableCell>
+                <TableCell>{row.adtype}</TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>

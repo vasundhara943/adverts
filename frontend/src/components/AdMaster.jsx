@@ -25,6 +25,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import 'dayjs/locale/en-gb';
 import dayjs from "dayjs";
 
+import axios from "axios";
+
 export default function AdMaster() {
   const [channel, setChannel] = React.useState("")
   const [aname, setAname] = React.useState("");
@@ -38,7 +40,7 @@ export default function AdMaster() {
   const [channelList, setChannelList] = React.useState([]);
   const [carryData, setCarryData] = React.useState([]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newRow = {
       id: tableData.length + 1,
       channel,
@@ -64,16 +66,53 @@ export default function AdMaster() {
     // console.log([...tableData, newRow]); // Log the new table data for debugging
     //localStorage.setItem("tableData", JSON.stringify([...tableData, newRow]));
     localStorage.setItem("carry", JSON.stringify([...carryData, carryRow]));
+
+    try {
+      const response = await axios.post("http://localhost:8000/admaster/add", {
+        channel,
+        aname,
+        adtype,
+        filePath,
+        startDate,
+        endDate,
+        active
+      });
+      console.log('Response:', response.data);
+      // Refetch the table data to ensure consistency
+      const updatedData = await axios.get("http://localhost:8000/admaster/get");
+      if (Array.isArray(updatedData.data.data)) {
+        setTableData(updatedData.data.data);
+      } else {
+        console.error('Updated data is not an array:', updatedData.data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   useEffect(() => {
     const values1 = localStorage.getItem("AdType");
     if (values1) {
       // console.log(values1);
-      setChannelList(JSON.parse(values1).map((val) => val.cname));
+      setChannelList(JSON.parse(values1).map((val) => val.channel));
       setAdtypeList(JSON.parse(values1).map((val) => val.adtype));
       // setStartDateLimit(JSON.parse(values1).map((val) => val.startDate));
       // setEndDateLimit(JSON.parse(values1).map((val) => val.endDate));
+      const fetchData = async () => {
+        try {
+          const response = await axios.get("http://localhost:8000/admaster/get");
+          console.log('Response:', response.data);
+          if (Array.isArray(response.data.data)) {
+            setTableData(response.data.data);
+            console.log('Table data:', response.data.data);
+          } else {
+            console.error('Data is not an array:', response.data);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+      fetchData();
     }
   }, []);
 
