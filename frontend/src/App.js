@@ -2,7 +2,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import AdDesc from "./components/AdDesc";
+import AdDesc from "./pages/AdDesc";
 import AdType from "./components/AdType";
 import Schedule from "./components/Schedule";
 import AdMaster from "./components/AdMaster";
