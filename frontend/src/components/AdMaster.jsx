@@ -55,7 +55,7 @@ export default function AdMaster() {
 
   const requestSearchChannel = (searched) => {
     setCopyList(
-      ((copyList.length > 0) & (searched != "") ? copyList : tableData).filter(
+      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
         (item) => item.channel.toLowerCase().includes(searched.toLowerCase())
       )
     );
@@ -63,7 +63,7 @@ export default function AdMaster() {
 
   const requestSearchName = (searched) => {
     setCopyList(
-      ((copyList.length > 0) & (searched != "") ? copyList : tableData).filter(
+      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
         (item) => item.name.toLowerCase().includes(searched.toLowerCase())
       )
     );
@@ -71,7 +71,7 @@ export default function AdMaster() {
 
   const requestSearchAdType = (searched) => {
     setCopyList(
-      ((copyList.length > 0) & (searched != "") ? copyList : tableData).filter(
+      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
         (item) => item.adtype.toLowerCase().includes(searched.toLowerCase())
       )
     );

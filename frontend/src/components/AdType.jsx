@@ -222,7 +222,7 @@ const AdType = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="pt-10 justify-center items-center">
+      <div className="pt-10 flex justify-center items-center">
         <TablePagination
           component="div"
           count={(copyList.length > 0 ? copyList : tableData).length}

@@ -14,7 +14,19 @@ app.get("/",(req,res)=>{
     res.status(200).json({message:"Hello World"});
 });
 
+app.use('/login', (req, res) => {
+    res.send({
+      token: 'test123'
+    });
+  });
 
+app.get("/users/get", (req,res) => {
+    const query = "SELECT * FROM adverts.users";
+    pool.query(query)
+    .then((result)=>{
+        res.status(200).json({data:result[0]});
+    })
+})
 
 app.get("/adtype/get",(req,res)=>{
     const query="SELECT * FROM adverts.adtype";
@@ -190,24 +202,24 @@ app.get("/asrunlog/get", (req, res) => {
 })
 
 
-app.post('/login', (req, res) => {
-  db.execute(
-         (err, result)=> {
-             if (result.length > 0) {
-                 bcrypt.compare(password, result[0].password, (error, response) => {
-                     if (response) {
-                         const id = result[0].id
-                         const token = jwt.sign({id}, "jwtSecret", {
-                             expiresIn: 300,
-                         })
-                         req.session.user = result;
-                         res.send(result);
-                     }
-                 });
-             }
-         }
-     );
- });
+// app.post('/login', (req, res) => {
+//   db.execute(
+//          (err, result)=> {
+//              if (result.length > 0) {
+//                  bcrypt.compare(password, result[0].password, (error, response) => {
+//                      if (response) {
+//                          const id = result[0].id
+//                          const token = jwt.sign({id}, "jwtSecret", {
+//                              expiresIn: 300,
+//                          })
+//                          req.session.user = result;
+//                          res.send(result);
+//                      }
+//                  });
+//              }
+//          }
+//      );
+//  });
 
 
 app.listen(8000,()=>{
