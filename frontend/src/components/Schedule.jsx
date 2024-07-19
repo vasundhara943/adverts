@@ -301,11 +301,11 @@ export default function Schedule(props) {
                   <TableCell>{row.id}</TableCell>
                   <TableCell>{row.adMaster}</TableCell>
                   <TableCell>
-                    {dayjs(row.startdate).format("YYYY-MM-DD")}
+                    {dayjs(row.startDate).format("YYYY-MM-DD")}
                   </TableCell>
                   <TableCell>{row.startTime}</TableCell>
                   <TableCell>
-                    {dayjs(row.enddate).format("YYYY-MM-DD")}
+                    {dayjs(row.endDate).format("YYYY-MM-DD")}
                   </TableCell>
                   <TableCell>{row.endTime}</TableCell>
                   <TableCell>{row.frequency}</TableCell>

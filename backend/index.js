@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import pool from './config/connection.js';
 import cors from 'cors';
+
 const app = express();
 
 
@@ -151,10 +152,6 @@ app.post("/schedule/add",(req,res)=>{
     }catch(err){
         res.status(500).json({message:err});
     }
-    // pool.query(query,[channel,adtype])
-    // .then((result)=>{
-    //     res.status(200).json({message:"Ad added successfully"});
-    // })
 });
 
 app.put("/schedule/update/:id", (req, res) => {
@@ -184,6 +181,33 @@ app.delete("/schedule/delete/:id", (req, res) =>{
     }
 });
 
+app.get("/asrunlog/get", (req, res) => {
+  const query="SELECT * FROM adverts.asrunlog";
+    pool.query(query)
+    .then((result)=>{
+        res.status(200).json({data:result[0]});
+    })
+})
+
+
+app.post('/login', (req, res) => {
+  db.execute(
+         (err, result)=> {
+             if (result.length > 0) {
+                 bcrypt.compare(password, result[0].password, (error, response) => {
+                     if (response) {
+                         const id = result[0].id
+                         const token = jwt.sign({id}, "jwtSecret", {
+                             expiresIn: 300,
+                         })
+                         req.session.user = result;
+                         res.send(result);
+                     }
+                 });
+             }
+         }
+     );
+ });
 
 
 app.listen(8000,()=>{

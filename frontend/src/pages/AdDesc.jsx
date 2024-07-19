@@ -15,6 +15,7 @@ import LogoImg from "../images/logo.png";
 
 // import LogoImg from "../images/ndtv_logo_2.png";
 import { styled } from "styled-components";
+import AsRunLog from "../components/AsRunLog";
 
 const AdDesc = () => {
   const [tabValue, setTabValue] = React.useState(0);
@@ -50,6 +51,7 @@ const AdDesc = () => {
                 <Tab label="Ad Type" />
                 <Tab label="Ad Master" />
                 <Tab label="Scheduling" />
+                <Tab label="As Run Log" />
               </Tabs>
             </Box>
           </Toolbar>
@@ -59,6 +61,7 @@ const AdDesc = () => {
         {tabValue === 0 && <AdType />}
         {tabValue === 1 && <AdMaster />}
         {tabValue === 2 && <Schedule />}
+        {tabValue === 3 && <AsRunLog/>}
       </div>
     </>
   );
