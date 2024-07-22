@@ -2,6 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import pool from './config/connection.js';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
+
+import { configDotenv } from 'dotenv';
 
 const app = express();
 
@@ -14,11 +17,32 @@ app.get("/",(req,res)=>{
     res.status(200).json({message:"Hello World"});
 });
 
-app.use('/login', (req, res) => {
-    res.send({
-      token: 'test123'
-    });
-  });
+// app.use('/login', (req, res) => {
+//     res.send({
+//       token: 'test123'
+//     });
+//   });
+
+app.post('/login', (req,res) => {
+    const {email, password} = req.body;
+    const query = "SELECT * FROM adverts.users WHERE `email` = ? AND `password` = ? LIMIT 1";
+    try{
+        pool.query(query,[email, password])
+        .then((result)=>{
+            if(result[0].length>0){
+                const id = result[0][0].email;
+                const token = jwt.sign({id}, `${process.env.JWT}`, {expiresIn: "9999 years"} );
+                console.log("Id: ", id, "\nToken: ", token);
+                res.status(200).json({Login: true, token, data: result[0]});
+            } else {
+                res.json({Login: false});
+            }
+            
+        })
+    }catch(err){
+        res.status(500).json({message:err});
+    }
+})
 
 app.get("/users/get", (req,res) => {
     const query = "SELECT * FROM adverts.users";

@@ -1,20 +1,19 @@
-import React, {useEffect, useState} from "react";
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-async function loginUser(credentials) {
-  return fetch('http://localhost:8000/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials)
-  })
-    .then(data => data.json())
- }
+// async function loginUser(credentials) {
+//   return fetch("http://localhost:8000/login", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(credentials),
+//   }).then((data) => data.json());
+// }
 
-const Login = ({setToken}) => {
- 
+const Login = ({ setToken }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [exUsers, setExUsers] = useState();
@@ -37,33 +36,26 @@ const Login = ({setToken}) => {
     fetchData();
   }, []);
 
-   const handleSubmit = async e => {
-    e.preventDefault();
-    // const token = await loginUser({
-    //   email,
-    //   password
-    // });
-    
-    // setToken(token);
+  const navigate = useNavigate();
 
-    const user = exUsers.find(user => user.email === email && user.password === password);
-    
-    if (user) {
-      const token = await loginUser({
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    axios.post('http://localhost:8000/login',{
         email,
         password
-      });
-      setToken(token);
-    } else {
-      alert('Invalid email or password');
-    }
-  }
+      }).then(res => {
+        if(res.data.Login){
+          alert("Success");
+          navigate("/describe_ad");
+        } else {
+          alert("Invalid email or password");
+        }
+      })
+    
+  };
 
-  // const authLogic = () => {
 
-  //   //navigate('/describe_ad');
-  // };
-  
   return (
     <div className="h-screen w-screen flex justify-center items-center ">
       <div className="grid gap-8">
@@ -83,7 +75,7 @@ const Login = ({setToken}) => {
                   type="email"
                   placeholder="Email"
                   required
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   // onChange={handleInput}
                 />
               </div>
@@ -100,18 +92,11 @@ const Login = ({setToken}) => {
                   type="password"
                   placeholder="Password"
                   required
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   // onChange={handleInput}
                 />
               </div>
-              {/* <a
-                className="group text-blue-400 transition-all duration-100 ease-in-out"
-                href="#"
-              >
-                <span className="bg-left-bottom bg-gradient-to-r text-sm from-blue-400 to-blue-400 bg-[length:0%_2px] bg-no-repeat group-hover:bg-[length:100%_2px] transition-all duration-500 ease-out">
-                  Forget your password?
-                </span>
-              </a> */}
+
               <button
                 className="bg-red-800 shadow-lg mt-6 p-2 text-white rounded-lg w-full hover:scale-105 hover:from-purple-500 hover:to-blue-500 transition duration-300 ease-in-out"
                 type="submit"
@@ -130,5 +115,5 @@ const Login = ({setToken}) => {
 export default Login;
 
 Login.propTypes = {
-  setToken: PropTypes.func.isRequired
-}
+  setToken: PropTypes.func.isRequired,
+};

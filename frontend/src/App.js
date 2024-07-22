@@ -15,6 +15,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* <Route path="/" exact element={<Login/>}/> */}
         <Route path="/describe_ad" exact element={<AdDesc />} />
       </Routes>
     </BrowserRouter>
