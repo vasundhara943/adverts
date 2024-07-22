@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, redirect } from "react-router-dom";
 
 // async function loginUser(credentials) {
 //   return fetch("http://localhost:8000/login", {
@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 //   }).then((data) => data.json());
 // }
 
-const Login = ({ setToken }) => {
+const Login = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [exUsers, setExUsers] = useState();
@@ -46,8 +46,10 @@ const Login = ({ setToken }) => {
         password
       }).then(res => {
         if(res.data.Login){
+          localStorage.setItem("token", res.data.token);
           alert("Success");
-          navigate("/describe_ad");
+          navigate('/describe_ad');
+          return;
         } else {
           alert("Invalid email or password");
         }
