@@ -1,62 +1,32 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { useNavigate, redirect } from "react-router-dom";
-
-// async function loginUser(credentials) {
-//   return fetch("http://localhost:8000/login", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(credentials),
-//   }).then((data) => data.json());
-// }
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const [exUsers, setExUsers] = useState();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/users/get");
-        console.log("Response:", response.data);
-        if (Array.isArray(response.data.data)) {
-          setExUsers(response.data.data);
-          console.log("Users data:", response.data.data);
-        } else {
-          console.error("Data is not an array:", response.data);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios.post('http://localhost:8000/login',{
+    axios.post("http://localhost:8000/login", {
         email,
-        password
-      }).then(res => {
-        if(res.data.Login){
-          localStorage.setItem("token", res.data.token);
+        password,
+      })
+      .then((res) => {
+        if (res.data.Login) {
+          sessionStorage.setItem("token", res.data.token);
           alert("Success");
-          navigate('/describe_ad');
+          navigate("/");
           return;
         } else {
           alert("Invalid email or password");
         }
-      })
-    
+      });
   };
-
 
   return (
     <div className="h-screen w-screen flex justify-center items-center ">
@@ -78,7 +48,6 @@ const Login = () => {
                   placeholder="Email"
                   required
                   onChange={(e) => setEmail(e.target.value)}
-                  // onChange={handleInput}
                 />
               </div>
               <div>
@@ -95,7 +64,6 @@ const Login = () => {
                   placeholder="Password"
                   required
                   onChange={(e) => setPassword(e.target.value)}
-                  // onChange={handleInput}
                 />
               </div>
 
@@ -115,7 +83,3 @@ const Login = () => {
 };
 
 export default Login;
-
-Login.propTypes = {
-  setToken: PropTypes.func.isRequired,
-};

@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
@@ -6,23 +6,46 @@ import Tab from "@mui/material/Tab";
 import AdType from "../components/AdType";
 import Schedule from "../components/Schedule";
 import AdMaster from "../components/AdMaster";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 
 import LogoImg from "../images/logo.png";
 
-// import LogoImg from "../images/ndtv_logo_2.png";
 import { styled } from "styled-components";
 import AsRunLog from "../components/AsRunLog";
 
+import axios from "axios";
+
 const AdDesc = () => {
   const [tabValue, setTabValue] = React.useState(0);
+  const navigate = useNavigate();
 
   const handleChange = (event, newTabValue) => {
     setTabValue(newTabValue);
   };
+
+  useEffect(() => {
+    const handleAuth = async () => {
+      try {
+        axios.get("http://localhost:8000/checkauth", {
+          headers: {
+            'access-token' : sessionStorage.getItem("token")
+          }
+        })
+        .then(res => {
+          console.log(res);
+          if(res.data.Login == false){
+            navigate('/login')
+          }
+      })
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+    handleAuth();
+  }, []);
 
   const NavLogo = styled(Link)`
     width: 100%;
@@ -43,7 +66,7 @@ const AdDesc = () => {
       <Box  >
         <AppBar position="static" sx={{ bgcolor: "#a10000" }}>
           <Toolbar>
-            <NavLogo to="/describe_ad">
+            <NavLogo to="/">
               <Logo src={LogoImg} />
             </NavLogo>
             <Box sx={{ width: "100%", bgcolor: "inherit", marginLeft: -190}}>

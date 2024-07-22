@@ -4,8 +4,6 @@ import pool from './config/connection.js';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
-import { configDotenv } from 'dotenv';
-
 const app = express();
 
 
@@ -17,11 +15,6 @@ app.get("/",(req,res)=>{
     res.status(200).json({message:"Hello World"});
 });
 
-// app.use('/login', (req, res) => {
-//     res.send({
-//       token: 'test123'
-//     });
-//   });
 
 app.post('/login', (req,res) => {
     const {email, password} = req.body;
@@ -44,13 +37,30 @@ app.post('/login', (req,res) => {
     }
 })
 
-app.get("/users/get", (req,res) => {
-    const query = "SELECT * FROM adverts.users";
-    pool.query(query)
-    .then((result)=>{
-        res.status(200).json({data:result[0]});
-    })
+const verifyJwt = (req, res, next) => {
+    const token = req.headers["access-token"];
+    if(!token){
+        return res.json({Login: false, message: "Login error. Retry."})
+    } else {
+        jwt.verify(token, `${process.env.JWT}`, (err, decoded) =>{
+            if(err){
+                res.json("Not Authenticated");
+            } else {
+                req.userEmail = decoded.email;
+                next();
+            }
+        })
+    }
+}
+
+app.get('/checkauth', verifyJwt, (req,res)=>{
+    return res.json("Authenticated");
 })
+
+
+
+
+
 
 app.get("/adtype/get",(req,res)=>{
     const query="SELECT * FROM adverts.adtype";
@@ -118,6 +128,10 @@ app.delete("/adtype/delete/:id", (req, res) =>{
 
 
 
+
+
+
+
 app.get("/admaster/get", (req,res) => {
     const query="SELECT * FROM adverts.admaster";
     pool.query(query)
@@ -166,6 +180,10 @@ app.post("/admaster/update/:id", (req, res) => {
       res.status(500).json({ message: err });
     }
 });
+
+
+
+
 
 
 app.get("/schedule/get", (req,res) => {
@@ -217,6 +235,9 @@ app.delete("/schedule/delete/:id", (req, res) =>{
     }
 });
 
+
+
+
 app.get("/asrunlog/get", (req, res) => {
   const query="SELECT * FROM adverts.asrunlog";
     pool.query(query)
@@ -225,25 +246,6 @@ app.get("/asrunlog/get", (req, res) => {
     })
 })
 
-
-// app.post('/login', (req, res) => {
-//   db.execute(
-//          (err, result)=> {
-//              if (result.length > 0) {
-//                  bcrypt.compare(password, result[0].password, (error, response) => {
-//                      if (response) {
-//                          const id = result[0].id
-//                          const token = jwt.sign({id}, "jwtSecret", {
-//                              expiresIn: 300,
-//                          })
-//                          req.session.user = result;
-//                          res.send(result);
-//                      }
-//                  });
-//              }
-//          }
-//      );
-//  });
 
 
 app.listen(8000,()=>{
