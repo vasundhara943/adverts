@@ -129,10 +129,10 @@ export default function AdMaster() {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:8000/admaster/get");
-        console.log("Response:", response.data);
+        //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          console.log("Table data:", response.data.data);
+          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
@@ -140,10 +140,10 @@ export default function AdMaster() {
         const response1 = await axios.get(
           "http://localhost:8000/adtype/getadlist"
         );
-        console.log("Response:", response1.data);
+        //console.log("Response:", response1.data);
         if (Array.isArray(response1.data.data)) {
           setAdtypeList(response1.data.data.map((row) => row.adtype));
-          console.log("AdType data:", response1.data.data);
+          //console.log("AdType data:", response1.data.data);
         } else {
           console.error("Data is not an array:", response1.data);
         }
@@ -151,10 +151,10 @@ export default function AdMaster() {
         const response2 = await axios.get(
           "http://localhost:8000/adtype/getchannellist"
         );
-        console.log("Response:", response2.data);
+        //console.log("Response:", response2.data);
         if (Array.isArray(response2.data.data)) {
           setChannelList(response2.data.data.map((row) => row.channel));
-          console.log("Channel data:", response2.data.data);
+          //console.log("Channel data:", response2.data.data);
         } else {
           console.error("Data is not an array:", response2.data);
         }
@@ -193,7 +193,7 @@ export default function AdMaster() {
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
         <div className="pt-10 flex justify-center items-center mx-20">
-          <div className="grid grid-cols-4 grid-rows-2 gap-10 items-center">
+          <div className="grid grid-cols-2 lg:grid-cols-4 grid-rows-2 gap-10 items-center">
             <div>
               <InputLabel id="channel">Channel</InputLabel>
               <FormControl sx={{ width: "200px" }}>

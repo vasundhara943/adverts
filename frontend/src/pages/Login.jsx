@@ -19,7 +19,6 @@ const Login = () => {
       .then((res) => {
         if (res.data.Login) {
           sessionStorage.setItem("token", res.data.token);
-          alert("Success");
           navigate("/");
           return;
         } else {

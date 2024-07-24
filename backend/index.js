@@ -25,7 +25,7 @@ app.post('/login', (req,res) => {
             if(result[0].length>0){
                 const id = result[0][0].email;
                 const token = jwt.sign({id}, `${process.env.JWT}`, {expiresIn: "9999 years"} );
-                console.log("Id: ", id, "\nToken: ", token);
+                //console.log("Id: ", id, "\nToken: ", token);
                 res.status(200).json({Login: true, token, data: result[0]});
             } else {
                 res.json({Login: false});
@@ -140,9 +140,16 @@ app.get("/admaster/get", (req,res) => {
     })
 });
 
+app.get("/admaster/getactive", (req,res) => {
+    const query="SELECT * FROM adverts.admaster WHERE active='Yes'";
+    pool.query(query)
+    .then((result)=>{
+        res.status(200).json({data:result[0]});
+    })
+});
+
 app.post("/admaster/add",(req,res)=>{
     const {channel, aname, adtype, filePath, startDate, endDate, active}=req.body;
-    //console.log(channel, aname, adtype, filePath, startDate, endDate, active);
     const query="INSERT INTO adverts.admaster (channel, name, adtype, filepath, startdate, enddate, active) VALUES (?,?,?,?,?,?,?)";
     try{
         pool.query(query,[channel,aname, adtype, filePath, startDate, endDate, active])
@@ -196,7 +203,7 @@ app.get("/schedule/get", (req,res) => {
 
 app.post("/schedule/add",(req,res)=>{
     const {adMaster, startDate, startTime, endDate, endTime, frequency}=req.body;
-    //console.log(channel, aname, adtype, filePath, startDate, endDate, active);
+    ////console.log(channel, aname, adtype, filePath, startDate, endDate, active);
     const query="INSERT INTO adverts.scheduling (adMaster, startDate, startTime, endDate, endTime, frequency) VALUES (?,?,?,?,?,?)";
     try{
         pool.query(query,[adMaster, startDate, startTime, endDate, endTime, frequency])
@@ -249,5 +256,5 @@ app.get("/asrunlog/get", (req, res) => {
 
 
 app.listen(8000,()=>{
-    console.log("Server is running on port 8000");
+    //console.log("Server is running on port 8000");
 });

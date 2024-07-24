@@ -1,4 +1,5 @@
-import React, { Fragment, useEffect } from "react";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
@@ -6,7 +7,7 @@ import Tab from "@mui/material/Tab";
 import AdType from "../components/AdType";
 import Schedule from "../components/Schedule";
 import AdMaster from "../components/AdMaster";
-import { Link, useNavigate } from "react-router-dom";
+import AsRunLog from "../components/AsRunLog";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,7 +15,6 @@ import Toolbar from "@mui/material/Toolbar";
 import LogoImg from "../images/logo.png";
 
 import { styled } from "styled-components";
-import AsRunLog from "../components/AsRunLog";
 
 import axios from "axios";
 
@@ -24,24 +24,27 @@ const AdDesc = () => {
 
   const handleChange = (event, newTabValue) => {
     setTabValue(newTabValue);
+    console.log("New tab: ", newTabValue);
   };
 
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        axios.get("http://localhost:8000/checkauth", {
-          headers: {
-            'access-token' : sessionStorage.getItem("token")
-          }
-        })
-        .then(res => {
-          console.log(res);
-          if(res.data.Login == false){
-            navigate('/login')
-          }
-      })
+        axios
+          .get("http://localhost:8000/checkauth", {
+            headers: {
+              "access-token": sessionStorage.getItem("token"),
+            },
+          })
+          .then((res) => {
+            //console.log(res);
+            if (res.data.Login == false) {
+              navigate("/login");
+            }
+          });
       } catch (error) {
         console.error("Error:", error);
+        navigate("/login");
       }
     };
     handleAuth();
@@ -63,20 +66,29 @@ const AdDesc = () => {
 
   return (
     <>
-      <Box  >
+      <Box>
         <AppBar position="static" sx={{ bgcolor: "#a10000" }}>
-          <Toolbar>
-            <NavLogo to="/">
+          <Toolbar className="grid grid-cols-3 items-start">
+            {/* <NavLogo to="/"> */}
+            <div>
               <Logo src={LogoImg} />
-            </NavLogo>
-            <Box sx={{ width: "100%", bgcolor: "inherit", marginLeft: -190}}>
-              <Tabs tabvalue={tabValue} onChange={handleChange} centered textColor='white'>
-                <Tab label="Ad Type" />
-                <Tab label="Ad Master" />
-                <Tab label="Scheduling" />
-                <Tab label="As Run Log" />
-              </Tabs>
-            </Box>
+            </div>
+            {/* </NavLogo> */}
+            {/* <Box > */}
+            {/* // , marginLeft: -190}}> */}
+            <Tabs
+              tabvalue={tabValue}
+              onChange={handleChange}
+              centered
+              textColor="white"
+              sx={{ width: "100%", bgcolor: "inherit" }}
+            >
+              <Tab label="Ad Type" />
+              <Tab label="Ad Master" />
+              <Tab label="Scheduling" />
+              <Tab label="As Run Log" />
+            </Tabs>
+            {/* </Box> */}
           </Toolbar>
         </AppBar>
       </Box>
@@ -84,7 +96,7 @@ const AdDesc = () => {
         {tabValue === 0 && <AdType />}
         {tabValue === 1 && <AdMaster />}
         {tabValue === 2 && <Schedule />}
-        {tabValue === 3 && <AsRunLog/>}
+        {tabValue === 3 && <AsRunLog />}
       </div>
     </>
   );

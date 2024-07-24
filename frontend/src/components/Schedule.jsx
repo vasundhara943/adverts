@@ -109,8 +109,8 @@ export default function Schedule(props) {
 
   const setStartEndDateLimit = (e) => {
     const val = masterList.indexOf(e);
-    console.log(masterData[val]);
-    console.log("Start: ", masterData[val].startdate);
+    //console.log(masterData[val]);
+    //console.log("Start: ", masterData[val].startdate);
     setStartDateLimit(masterData[val].startdate);
     setEndDateLimit(masterData[val].enddate);
   };
@@ -143,25 +143,25 @@ export default function Schedule(props) {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:8000/schedule/get");
-        console.log("Response:", response.data);
+        //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          console.log("Table data:", response.data.data);
+          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
 
-        const response1 = await axios.get("http://localhost:8000/admaster/get");
-        console.log("Response:", response1.data);
+        const response1 = await axios.get("http://localhost:8000/admaster/getactive");
+        //console.log("Response:", response1.data);
         if (Array.isArray(response1.data.data)) {
           setMasterData(response1.data.data);
-          // console.log("Master data:", response1.data.data);
+          // //console.log("Master data:", response1.data.data);
           setMasterList(
             response1.data.data.map(
               (row) => `${row.channel}_${row.name}_${row.adtype}`
             )
           );
-          //console.log("Master: ",masterList);
+          ////console.log("Master: ",masterList);
         } else {
           console.error("Data is not an array:", response1.data);
         }
@@ -177,7 +177,7 @@ export default function Schedule(props) {
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-        <div className="pt-10 justify-center mx-20 grid grid-cols-7 gap-20 items-center">
+        <div className="pt-10 justify-center mx-20 grid gap-7 2xl:gap-20 items-center grid-cols-2 xl:grid-cols-3 2xl:grid-cols-7">
           <div>
             <InputLabel id="adMaster">Ad Master</InputLabel>
             <FormControl sx={{ width: "200px" }}>
@@ -255,7 +255,7 @@ export default function Schedule(props) {
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
-          <div className="pt-10 flex justify-center items-center">
+          <div className="pt-10 flex justify-center items-center max-2xl:col-span-3">
             <Button
               variant="contained"
               color="primary"

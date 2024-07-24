@@ -62,10 +62,10 @@ const AsRunLog = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:8000/asrunlog/get");
-        console.log("Response:", response.data);
+        //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          console.log("Table data:", response.data.data);
+          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
