@@ -27,8 +27,10 @@ import dayjs from "dayjs";
 import axios from "axios";
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
+import FileInput from "./FileInput";
 
 export default function Schedule(props) {
+  const [tapeID, setTapeID] = React.useState("");
   const [adMaster, setAdMaster] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
   const [startTime, setStartTime] = React.useState(null);
@@ -39,6 +41,7 @@ export default function Schedule(props) {
   const [tableData, setTableData] = React.useState([]);
   const [masterData, setMasterData] = React.useState([]);
   const [masterList, setMasterList] = React.useState([]);
+  const [tapeList, setTapeList] = React.useState([]);
 
   const [startDateLimit, setStartDateLimit] = React.useState([]);
   const [endDateLimit, setEndDateLimit] = React.useState([]);
@@ -70,6 +73,7 @@ export default function Schedule(props) {
     try {
       if (editId !== null) {
         await axios.put(`http://localhost:8000/schedule/update/${editId}`, {
+          tapeID,
           adMaster,
           startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
           startTime: startTime ? startTime.format("HH:mm:ss") : null,
@@ -80,6 +84,7 @@ export default function Schedule(props) {
         setEditId(null);
       } else {
         await axios.post("http://localhost:8000/schedule/add", {
+          tapeID,
           adMaster,
           startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
           startTime: startTime ? startTime.format("HH:mm:ss") : null,
@@ -95,7 +100,7 @@ export default function Schedule(props) {
       } else {
         console.error("Updated data is not an array:", updatedData.data);
       }
-
+      setTapeID("");
       setAdMaster("");
       setStartDate(null);
       setStartTime(null);
@@ -118,6 +123,7 @@ export default function Schedule(props) {
   const editValues = (id) => {
     const record = tableData.find((row) => row.id === id);
     if (record) {
+      setTapeID(record.tapeID);
       setAdMaster(record.adMaster);
       setStartEndDateLimit(record.adMaster);
       setStartDate(dayjs(record.startDate));
@@ -151,11 +157,14 @@ export default function Schedule(props) {
           console.error("Data is not an array:", response.data);
         }
 
-        const response1 = await axios.get("http://localhost:8000/admaster/getactive");
+        const response1 = await axios.get(
+          "http://localhost:8000/admaster/getactive"
+        );
         //console.log("Response:", response1.data);
         if (Array.isArray(response1.data.data)) {
           setMasterData(response1.data.data);
           // //console.log("Master data:", response1.data.data);
+          setTapeList(response1.data.data.map((row) => row.tapeID));
           setMasterList(
             response1.data.data.map(
               (row) => `${row.channel}_${row.name}_${row.adtype}`
@@ -172,12 +181,49 @@ export default function Schedule(props) {
     fetchData();
   }, []);
 
+  const refreshTable = async () => {
+    const updatedData = await axios.get("http://localhost:8000/schedule/get");
+    if (Array.isArray(updatedData.data.data)) {
+      setTableData(updatedData.data.data);
+    } else {
+      console.error("Updated data is not an array:", updatedData.data);
+    }
+  };
+
   const freqvals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60];
 
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-        <div className="pt-10 justify-center mx-20 grid gap-7 2xl:gap-20 items-center grid-cols-2 xl:grid-cols-3 2xl:grid-cols-7">
+        <div>
+        <div className="pt-10 flex justify-center items-center col-span-2">
+            <FileInput />
+          </div>
+        </div>
+        <div className="pt-10 justify-center mx-20 grid gap-7 2xl:gap-10 items-center grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+        <div className="font-bold text-xl">
+        <h2>Manual Scheduling:</h2>
+      </div>
+          <div>
+            <InputLabel id="tapeid">Tape ID</InputLabel>
+            <FormControl sx={{ width: "200px" }}>
+              <Select
+                labelid="tapeID"
+                name="tapeID"
+                value={tapeID}
+                onChange={(event) => {
+                  setTapeID(event.target.value);
+                  setAdMaster(event.target.value);
+                }}
+              >
+                {tapeList.map((val, index) => (
+                  <MenuItem key={index} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
           <div>
             <InputLabel id="adMaster">Ad Master</InputLabel>
             <FormControl sx={{ width: "200px" }}>
@@ -255,7 +301,7 @@ export default function Schedule(props) {
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
-          <div className="pt-10 flex justify-center items-center max-2xl:col-span-3">
+          <div className="pt-10 flex justify-center items-center ">
             <Button
               variant="contained"
               color="primary"
@@ -280,10 +326,24 @@ export default function Schedule(props) {
           </div>
         </div>
         <div className="pt-10 flex justify-center items-center">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={refreshTable}
+            sx={{
+              backgroundColor: "#a10000",
+            }}
+          >
+            Refresh Table
+          </Button>
+        </div>
+
+        <div className="pt-10 flex justify-center items-center">
           <Table sx={{ minWidth: 500, width: "1150px", margin: "auto" }}>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
+                <TableCell>Tape ID</TableCell>
                 <TableCell>Ad Master</TableCell>
                 <TableCell>Start Date</TableCell>
                 <TableCell>Start Time</TableCell>
@@ -294,39 +354,42 @@ export default function Schedule(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(copyList.length > 0 ? copyList : tableData).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.adMaster}</TableCell>
-                  <TableCell>
-                    {dayjs(row.startDate).format("YYYY-MM-DD")}
-                  </TableCell>
-                  <TableCell>{row.startTime}</TableCell>
-                  <TableCell>
-                    {dayjs(row.endDate).format("YYYY-MM-DD")}
-                  </TableCell>
-                  <TableCell>{row.endTime}</TableCell>
-                  <TableCell>{row.frequency}</TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={() => editValues(row.id)}
-                      sx={{
-                        color: "#a10000",
-                      }}
-                    >
-                      <CiEdit />
-                    </Button>
-                    <Button
-                      onClick={() => deleteRecord(row.id)}
-                      sx={{
-                        color: "#a10000",
-                      }}
-                    >
-                      <MdDeleteForever />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {(copyList.length > 0 ? copyList : tableData)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>{row.tapeID}</TableCell>
+                    <TableCell>{row.adMaster}</TableCell>
+                    <TableCell>
+                      {dayjs(row.startDate).format("YYYY-MM-DD")}
+                    </TableCell>
+                    <TableCell>{row.startTime}</TableCell>
+                    <TableCell>
+                      {dayjs(row.endDate).format("YYYY-MM-DD")}
+                    </TableCell>
+                    <TableCell>{row.endTime}</TableCell>
+                    <TableCell>{row.frequency}</TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => editValues(row.id)}
+                        sx={{
+                          color: "#a10000",
+                        }}
+                      >
+                        <CiEdit />
+                      </Button>
+                      <Button
+                        onClick={() => deleteRecord(row.id)}
+                        sx={{
+                          color: "#a10000",
+                        }}
+                      >
+                        <MdDeleteForever />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

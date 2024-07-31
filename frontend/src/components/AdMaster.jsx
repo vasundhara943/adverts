@@ -28,6 +28,7 @@ export default function AdMaster() {
   const [aname, setAname] = React.useState("");
   const [adtype, setAdtype] = React.useState("");
   const [filePath, setFilePath] = React.useState("");
+  const [tapeID, setTapeID] = React.useState("");
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
   const [active, setActive] = React.useState("");
@@ -55,7 +56,7 @@ export default function AdMaster() {
 
   const requestSearchChannel = (searched) => {
     setCopyList(
-      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
+      (copyList.length > 0 && searched != "" ? copyList : tableData).filter(
         (item) => item.channel.toLowerCase().includes(searched.toLowerCase())
       )
     );
@@ -63,7 +64,7 @@ export default function AdMaster() {
 
   const requestSearchName = (searched) => {
     setCopyList(
-      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
+      (copyList.length > 0 && searched != "" ? copyList : tableData).filter(
         (item) => item.name.toLowerCase().includes(searched.toLowerCase())
       )
     );
@@ -71,7 +72,7 @@ export default function AdMaster() {
 
   const requestSearchAdType = (searched) => {
     setCopyList(
-      ((copyList.length > 0) && (searched != "") ? copyList : tableData).filter(
+      (copyList.length > 0 && searched != "" ? copyList : tableData).filter(
         (item) => item.adtype.toLowerCase().includes(searched.toLowerCase())
       )
     );
@@ -86,6 +87,7 @@ export default function AdMaster() {
           aname,
           adtype,
           filePath,
+          tapeID,
           startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
           endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
           active,
@@ -98,6 +100,7 @@ export default function AdMaster() {
           aname,
           adtype,
           filePath,
+          tapeID,
           startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
           endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
           active,
@@ -117,6 +120,7 @@ export default function AdMaster() {
       setAname("");
       setAdtype("");
       setFilePath("");
+      setTapeID("");
       setStartDate(null);
       setEndDate(null);
       setActive("");
@@ -172,6 +176,7 @@ export default function AdMaster() {
       setAname(row.name);
       setAdtype(row.adtype);
       setFilePath(row.filepath);
+      setTapeID(row.tapeID);
       setStartDate(dayjs(row.startdate));
       setEndDate(dayjs(row.enddate));
       setActive(row.active);
@@ -193,7 +198,7 @@ export default function AdMaster() {
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
         <div className="pt-10 flex justify-center items-center mx-20">
-          <div className="grid grid-cols-2 lg:grid-cols-4 grid-rows-2 gap-10 items-center">
+          <div className="grid grid-cols-2 lg:grid-cols-5 grid-rows-2 gap-10 items-center">
             <div>
               <InputLabel id="channel">Channel</InputLabel>
               <FormControl sx={{ width: "200px" }}>
@@ -240,6 +245,15 @@ export default function AdMaster() {
                 sx={{ width: "200px" }}
                 value={filePath}
                 onChange={(event) => setFilePath(event.target.value)}
+              />
+            </div>
+            <div>
+              <InputLabel id="tapeid">Tape ID</InputLabel>
+              <TextField
+                sx={{ width: "200px" }}
+                id="tapeid"
+                value={tapeID}
+                onChange={(event) => setTapeID(event.target.value)}
               />
             </div>
             <div>
@@ -325,6 +339,7 @@ export default function AdMaster() {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
+                <TableCell>Tape ID</TableCell>
                 <TableCell>Channel</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Ad Type</TableCell>
@@ -336,47 +351,50 @@ export default function AdMaster() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(copyList.length > 0 ? copyList : tableData).slice(page*rowsPerPage, page*rowsPerPage + rowsPerPage).map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.channel}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.adtype}</TableCell>
-                  <TableCell>{row.filepath}</TableCell>
-                  <TableCell>
-                    {dayjs(row.startdate).format("YYYY-MM-DD")}
-                  </TableCell>
-                  <TableCell>
-                    {dayjs(row.enddate).format("YYYY-MM-DD")}
-                  </TableCell>
-                  <TableCell>{row.active}</TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={() => editValues(row.id)}
-                      sx={{
-                        color: "#a10000",
-                      }}
-                    >
-                      <CiEdit />
-                    </Button>
-                    <Button
-                      onClick={() => deleteRecord(row.id)}
-                      sx={{
-                        color: "#a10000",
-                      }}
-                    >
-                      <MdDeleteForever />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {(copyList.length > 0 ? copyList : tableData)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>{row.tapeID}</TableCell>
+                    <TableCell>{row.channel}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.adtype}</TableCell>
+                    <TableCell>{row.filepath}</TableCell>
+                    <TableCell>
+                      {dayjs(row.startdate).format("YYYY-MM-DD")}
+                    </TableCell>
+                    <TableCell>
+                      {dayjs(row.enddate).format("YYYY-MM-DD")}
+                    </TableCell>
+                    <TableCell>{row.active}</TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => editValues(row.id)}
+                        sx={{
+                          color: "#a10000",
+                        }}
+                      >
+                        <CiEdit />
+                      </Button>
+                      <Button
+                        onClick={() => deleteRecord(row.id)}
+                        sx={{
+                          color: "#a10000",
+                        }}
+                      >
+                        <MdDeleteForever />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
         <div className="pt-10 flex justify-center items-center">
           <TablePagination
             component="div"
-            count={(copyList.length>0 ? copyList : tableData).length}
+            count={(copyList.length > 0 ? copyList : tableData).length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}

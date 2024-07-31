@@ -11,9 +11,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get("/",(req,res)=>{
-    res.status(200).json({message:"Hello World"});
-});
+// app.get("/",(req,res)=>{
+//     res.status(200).json({message:"Hello World"});
+// });
 
 
 app.post('/login', (req,res) => {
@@ -149,10 +149,10 @@ app.get("/admaster/getactive", (req,res) => {
 });
 
 app.post("/admaster/add",(req,res)=>{
-    const {channel, aname, adtype, filePath, startDate, endDate, active}=req.body;
-    const query="INSERT INTO adverts.admaster (channel, name, adtype, filepath, startdate, enddate, active) VALUES (?,?,?,?,?,?,?)";
+    const {channel, aname, adtype, filePath, tapeID, startDate, endDate, active}=req.body;
+    const query="INSERT INTO adverts.admaster (channel, name, adtype, filepath, tapeID, startdate, enddate, active) VALUES (?,?,?,?,?,?,?,?)";
     try{
-        pool.query(query,[channel,aname, adtype, filePath, startDate, endDate, active])
+        pool.query(query,[channel,aname, adtype, filePath, tapeID, startDate, endDate, active])
         .then((result)=>{
             res.status(200).json({message:"Admaster added successfully"});
         })
@@ -163,10 +163,10 @@ app.post("/admaster/add",(req,res)=>{
 
 app.post("/admaster/update/:id", (req, res) => {
     const { id } = req.params;
-    const { channel, aname, adtype, filePath, startDate, endDate, active } = req.body;
-    const query = "UPDATE adverts.admaster SET channel=?, name=?, adtype=?, filepath=?, startdate=?, enddate=?, active = ? WHERE id = ?";
+    const { channel, aname, adtype, filePath, tapeID, startDate, endDate, active } = req.body;
+    const query = "UPDATE adverts.admaster SET channel=?, name=?, adtype=?, filepath=?, tapeID=?, startdate=?, enddate=?, active = ? WHERE id = ?";
     try {
-      pool.query(query, [channel, aname, adtype, filePath, startDate, endDate, active, id])
+      pool.query(query, [channel, aname, adtype, filePath, tapeID, startDate, endDate, active, id])
         .then((result) => {
           res.status(200).json({ message: "AdMaster updated successfully" });
         })
@@ -201,19 +201,77 @@ app.get("/schedule/get", (req,res) => {
     })
 });
 
-app.post("/schedule/add",(req,res)=>{
-    const {adMaster, startDate, startTime, endDate, endTime, frequency}=req.body;
-    ////console.log(channel, aname, adtype, filePath, startDate, endDate, active);
-    const query="INSERT INTO adverts.scheduling (adMaster, startDate, startTime, endDate, endTime, frequency) VALUES (?,?,?,?,?,?)";
-    try{
-        pool.query(query,[adMaster, startDate, startTime, endDate, endTime, frequency])
-        .then((result)=>{
-            res.status(200).json({message:"Schedule added successfully"});
-        })
-    }catch(err){
-        res.status(500).json({message:err});
+// app.post("/schedule/add",(req,res)=>{
+//     const {tapeID, adMaster, startDate, startTime, endDate, endTime, frequency}=req.body;
+//     const query="INSERT INTO adverts.scheduling (tapeID, adMaster, startDate, startTime, endDate, endTime, frequency) VALUES (?,?,?,?,?,?,?)";
+//     try{
+//         pool.query(query,[tapeID, adMaster, startDate, startTime, endDate, endTime, frequency])
+//         .then((result)=>{
+//             res.status(200).json({message:"Schedule added successfully"});
+//         })
+//     }catch(err){
+//         res.status(500).json({message:err});
+//     }
+// });
+
+app.post("/schedule/add", (req, res) => {
+    const { tapeID, adMaster, startDate, startTime, endDate, endTime, frequency } = req.body;
+    const query = `
+        INSERT INTO adverts.scheduling (tapeID, adMaster, startDate, startTime, endDate, endTime, frequency)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+        adMaster = VALUES(adMaster),
+        startDate = VALUES(startDate),
+        endDate = VALUES(endDate),
+        endTime = VALUES(endTime),
+        frequency = VALUES(frequency)
+    `;
+
+    try {
+        pool.query(query, [tapeID, adMaster, startDate, startTime, endDate, endTime, frequency])
+            .then((result) => {
+                res.status(200).json({ message: "Schedule added or updated successfully" });
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err.message });
+            });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
+
+app.post("/schedule/savefile", (req, res) => {
+    const {fileDate, telecastTime, timebandName, requestedTimebandName, adType, tapeID, eventName, clientName, duration, contentType, productName, bookedProgram, isRun } = req.body;
+    const query = `INSERT INTO adverts.schedule_file (fileDate, telecastTime, timebandName, requestedTimebandName, adType, tapeID, eventName, clientName, duration, contentType, productName, bookedProgram, isRun )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+        fileDate = VALUES(fileDate),
+        telecastTime = VALUES(telecastTime), 
+        timebandName = VALUES(timebandName), 
+        requestedTimebandName = VALUES(requestedTimebandName), 
+        adType = VALUES(adType),
+        tapeID = VALUES(tapeID),
+        eventName = VALUES(eventName),
+        clientName = VALUES(clientName),
+        duration = VALUES(duration),
+        contentType = VALUES(contentType),
+        productName = VALUES(productName),
+        bookedProgram = VALUES(bookedProgram),
+        isRun = VALUES(isRun)
+        `;
+
+    try {
+        pool.query(query, [fileDate, telecastTime, timebandName, requestedTimebandName, adType, tapeID, eventName, clientName, duration, contentType, productName, bookedProgram, isRun])
+            .then((result) => {
+                res.status(200).json({ message: "Schedule file saved successfully" });
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err.message });
+            });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+})
 
 app.put("/schedule/update/:id", (req, res) => {
     const { id } = req.params;
