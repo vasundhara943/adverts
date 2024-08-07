@@ -3,7 +3,8 @@ import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import axios from "axios";
 import { InputLabel, TextField } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 function FileInput() {
   var today = new Date();
@@ -14,7 +15,6 @@ function FileInput() {
   const [masterList, setMasterList] = React.useState([]);
   const [tapeList, setTapeList] = React.useState([]);
 
-  // const [endTime, setEndTime] = React.useState(-1);
   var freqMap = {};
 
   React.useEffect(() => {
@@ -23,23 +23,14 @@ function FileInput() {
         const response = await axios.get(
           "http://localhost:8000/admaster/getactive"
         );
-        //console.log("Response:", response1.data);
         if (Array.isArray(response.data.data)) {
-          // setMasterData(response.data.data);
-          // //console.log("Master data:", response1.data.data);
           setMasterData(response.data);
-          console.log("MasterData: ", masterData);
           setTapeList(response.data.data.map((row) => row.tapeID));
           setMasterList(
             response.data.data.map(
               (row) => `${row.channel}_${row.name}_${row.adtype}`
             )
           );
-          console.log("Tape List: ", tapeList);
-          console.log("Master List: ", masterList);
-          //setMasterTapeList(Object.fromEntries(masterData.map(row => [row.tapeID, `${row.channel}_${row.name}_${row.adtype}`])))
-          //setMasterTapeList(Object.assign({}, ...masterData.map((row) => ({[row.tapeID]: `${row.channel}_${row.name}_${row.adtype}`}))));
-          //console.log("Master: ", masterTapeList);
         } else {
           console.error("Data is not an array:", response.data);
         }
@@ -76,19 +67,32 @@ function FileInput() {
         range: importRange,
         header: headers,
       });
-      console.log(parsedData);
-      // console.log(data);
       setTabData([]);
-      console.log("Tab Data: ", tabData);
 
       let currTime = -1;
       let endTime = -1;
+      await axios.delete(
+        `http://localhost:8000/schedule/deletefile/${dayjs(fileDate).format(
+          "YYYY-MM-DD"
+        )}`
+      );
       for (let i = 0; i < parsedData.length; i++) {
         const element = parsedData[i];
         await axios.post(`http://localhost:8000/schedule/savefile`, {
-          fileDate: fileDate ? dayjs(fileDate).format("YYYY-MM-DD") : null,
+          id: i + 1,
+          fileDate: fileDate
+            ? dayjs(fileDate).tz("Asia/Kolkata").format("YYYY-MM-DD")
+            : null,
           telecastTime: element["Telecast Time"]
-            ? element["Telecast Time"]
+            ? isNaN(element["Telecast Time"])
+              ? element["Telecast Time"]
+              : element["Telecast Time"] * 24 < 10
+              ? (element["Telecast Time"] * 24) % 1 != 0
+                ? `0${parseInt(element["Telecast Time"] * 24)}:30:00`
+                : `0${element["Telecast Time"] * 24}:00:00`
+              : (element["Telecast Time"] * 24) % 1 != 0
+              ? `${parseInt(element["Telecast Time"] * 24)}:30:00`
+              : `${element["Telecast Time"] * 24}:00:00`
             : null,
           timebandName: element["Timeband Name"]
             ? element["Timeband Name"]
@@ -106,64 +110,60 @@ function FileInput() {
           bookedProgram: element["Booked Program"]
             ? element["Booked Program"]
             : null,
-          isRun: element["Is Run"] ? element["Is Run"] : null,
         });
 
         if (!isNaN(element["Telecast Time"])) {
           currTime = element["Telecast Time"] * 24;
-          console.log("Curr Time: ", currTime);
           if (currTime === endTime) {
-            console.log("Freq Map: ", freqMap);
             for (let key in freqMap) {
-              console.log("Key: ", key, " ", freqMap[key]);
               if (tabData === null) {
                 setTabData({
                   tapeID: key,
                   adMaster: masterList[tapeList.indexOf(key)]
                     ? masterList[tapeList.indexOf(key)]
                     : "master",
-                  //: masterData[masterData['tapeID'].indexOf(key)].channel,
-                  startDate: fileDate ? dayjs(fileDate).format("YYYY-MM-DD") : null,
+                  startDate: fileDate
+                    ? dayjs(fileDate).format("YYYY-MM-DD")
+                    : null,
                   startTime:
                     endTime <= 10
                       ? `0${endTime - 1}:00:00`
                       : `${endTime - 1}:00:00`,
-                  endDate: fileDate ? dayjs(fileDate).format("YYYY-MM-DD") : null,
+                  endDate: fileDate
+                    ? dayjs(fileDate).format("YYYY-MM-DD")
+                    : null,
                   endTime:
                     endTime < 10 ? `0${endTime}:00:00` : `${endTime}:00:00`,
                   frequency: freqMap[key],
                 });
               } else {
-                // setTabData((tabData) => [...tabData, {
                 tabData.push({
                   tapeID: key,
                   adMaster: masterList[tapeList.indexOf(key)]
                     ? masterList[tapeList.indexOf(key)]
-                    : "master",
-                  //: masterData[masterData['tapeID'].indexOf(key)].channel,
-                  startDate: fileDate ? dayjs(fileDate).format("YYYY-MM-DD") : null,
+                    : "AdMaster not defined",
+                  startDate: fileDate
+                    ? dayjs(fileDate).format("YYYY-MM-DD")
+                    : null,
                   startTime:
                     endTime <= 10
                       ? `0${endTime - 1}:00:00`
                       : `${endTime - 1}:00:00`,
-                  endDate: fileDate ? dayjs(fileDate).format("YYYY-MM-DD") : null,
+                  endDate: fileDate
+                    ? dayjs(fileDate).format("YYYY-MM-DD")
+                    : null,
                   endTime:
                     endTime < 10 ? `0${endTime}:00:00` : `${endTime}:00:00`,
                   frequency: freqMap[key],
                 });
               }
             }
-            console.log("Table Data: ", tabData);
             freqMap = {};
             endTime = currTime + 1;
-            console.log("End Time: ", endTime);
           } else if (currTime % 1 === 0) {
             endTime = currTime + 1;
-            console.log("End Time: ", endTime);
           }
         } else if (element["Type"] != "OTHERS SECONDARY") {
-          //console.log("Prog Time: ", (element["Telecast Time"]));
-          // if(element[""])
           if (freqMap[element["Tape ID"]] === undefined) {
             freqMap[element["Tape ID"]] = 1;
           } else {
@@ -184,29 +184,31 @@ function FileInput() {
         });
       }
       tabData = [];
-      console.log("Tab Data: ", tabData);
     };
   };
 
   return (
-    <div className="pt-10 justify-center grid gap-7 2xl:gap-10 items-center grid-cols-5">
-      <div className="font-bold text-xl">
-        <h2>File Upload:</h2>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+      <div className="pt-10 justify-center mx-20 grid gap-7 2xl:gap-10 items-center grid-cols-5">
+        <div className="font-bold text-xl">
+          <h2>File Upload:</h2>
+        </div>
+        <div className="col-span-">
+          <InputLabel id="filedate">Date</InputLabel>
+          <DatePicker
+            sx={{ width: "200px" }}
+            value={fileDate}
+            onChange={(date) => setFileDate(date)}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </div>
+        <div className="col-span-">
+          <InputLabel>Upload Scheduling File</InputLabel>
+          <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+        </div>
+        <div className="col-span-2"></div>
       </div>
-      <div className="col-span-2">
-        <InputLabel>Upload Scheduling File</InputLabel>
-        <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      </div>
-      <div className="col-span-2">
-        <InputLabel id="filedate">Date</InputLabel>
-        <DatePicker
-          sx={{ width: "200px" }}
-          value={fileDate}
-          onChange={(date) => setFileDate(date)}
-          renderInput={(params) => <TextField {...params} />}
-        />
-      </div>
-    </div>
+    </LocalizationProvider>
   );
 }
 

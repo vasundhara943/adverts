@@ -60,7 +60,6 @@ const AdType = () => {
         //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
@@ -87,7 +86,7 @@ const AdType = () => {
           adtype,
         });
       }
-      ////console.log('Response:', response.data);
+      //console.log('Response:', response.data);
       const updatedData = await axios.get("http://localhost:8000/adtype/get");
       if (Array.isArray(updatedData.data.data)) {
         setTableData(updatedData.data.data);
@@ -200,7 +199,6 @@ const AdType = () => {
                   <TableCell>{row.adtype}</TableCell>
                   <TableCell>
                     <Button
-                      //color="primary"
                       onClick={() => editValues(row.id)}
                       sx={{
                         color: "#a10000",

@@ -52,6 +52,8 @@ export default function Schedule(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+  const [searchDate, setSearchDate] = React.useState(dayjs(new Date()));
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -61,12 +63,35 @@ export default function Schedule(props) {
     setPage(0);
   };
 
-  const requestSearch = (searched) => {
-    setCopyList(
-      tableData.filter((item) =>
-        item.adMaster.toLowerCase().includes(searched.toLowerCase())
-      )
-    );
+  const requestSearch = async (searched) => {
+    if(searched){
+      setCopyList(
+        (copyList.length > 0 ? copyList : tableData).filter((item) =>
+          item.adMaster.toLowerCase().includes(searched.toLowerCase())
+        )
+      );  
+    } else {
+      setCopyList(tableData);
+    }
+  };
+
+  const getRecords = async (searchDate) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/schedule/get/${dayjs(searchDate).format(
+          "YYYY-MM-DD"
+        )}`
+      );
+      if (Array.isArray(response.data.data)) {
+        console.log(response.data.data);
+        setCopyList([]);
+        setTableData(response.data.data);
+      } else {
+        console.error("Data is not an array:", response.data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -114,8 +139,6 @@ export default function Schedule(props) {
 
   const setStartEndDateLimit = (e) => {
     const val = masterList.indexOf(e);
-    //console.log(masterData[val]);
-    //console.log("Start: ", masterData[val].startdate);
     setStartDateLimit(masterData[val].startdate);
     setEndDateLimit(masterData[val].enddate);
   };
@@ -148,11 +171,14 @@ export default function Schedule(props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/schedule/get");
+        const response = await axios.post(
+          `http://localhost:8000/schedule/get/${dayjs(new Date()).format(
+            "YYYY-MM-DD"
+          )}`
+        );
         //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
@@ -163,14 +189,12 @@ export default function Schedule(props) {
         //console.log("Response:", response1.data);
         if (Array.isArray(response1.data.data)) {
           setMasterData(response1.data.data);
-          // //console.log("Master data:", response1.data.data);
           setTapeList(response1.data.data.map((row) => row.tapeID));
           setMasterList(
             response1.data.data.map(
               (row) => `${row.channel}_${row.name}_${row.adtype}`
             )
           );
-          ////console.log("Master: ",masterList);
         } else {
           console.error("Data is not an array:", response1.data);
         }
@@ -181,29 +205,20 @@ export default function Schedule(props) {
     fetchData();
   }, []);
 
-  const refreshTable = async () => {
-    const updatedData = await axios.get("http://localhost:8000/schedule/get");
-    if (Array.isArray(updatedData.data.data)) {
-      setTableData(updatedData.data.data);
-    } else {
-      console.error("Updated data is not an array:", updatedData.data);
-    }
-  };
-
   const freqvals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60];
 
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
         <div>
-        <div className="pt-10 flex justify-center items-center col-span-2">
+          <div className="pt-10 flex justify-center items-center">
             <FileInput />
           </div>
         </div>
         <div className="pt-10 justify-center mx-20 grid gap-7 2xl:gap-10 items-center grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-        <div className="font-bold text-xl">
-        <h2>Manual Scheduling:</h2>
-      </div>
+          <div className="font-bold text-xl row-span-2">
+            <h2>Manual Scheduling:</h2>
+          </div>
           <div>
             <InputLabel id="tapeid">Tape ID</InputLabel>
             <FormControl sx={{ width: "200px" }}>
@@ -314,28 +329,33 @@ export default function Schedule(props) {
             </Button>
           </div>
         </div>
-        <div className="pt-10 flex justify-center items-center">
-          <div>
-            <InputLabel>Search in Ad Master</InputLabel>
-            <TextField
-              variant="outlined"
-              placeholder="Search..."
-              type="search"
-              onInput={(e) => requestSearch(e.target.value)}
-            />
+        <div className="pt-10 mx-20 grid grid-cols-4 justify-center items-center">
+          <div className="cols-span-1"></div>
+          <div className="pt-10 flex justify-center items-center">
+            <div>
+              <InputLabel>Filter by Date</InputLabel>
+              <DatePicker
+                value={searchDate}
+                sx={{ width: "200px" }}
+                onChange={(date) => {
+                  setSearchDate(date);
+                  getRecords(date);
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </div>
           </div>
-        </div>
-        <div className="pt-10 flex justify-center items-center">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={refreshTable}
-            sx={{
-              backgroundColor: "#a10000",
-            }}
-          >
-            Refresh Table
-          </Button>
+          <div className="pt-10 flex justify-center items-center">
+            <div>
+              <InputLabel>Search in Ad Master</InputLabel>
+              <TextField
+                variant="outlined"
+                placeholder="Search..."
+                type="search"
+                onInput={(e) => requestSearch(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="pt-10 flex justify-center items-center">

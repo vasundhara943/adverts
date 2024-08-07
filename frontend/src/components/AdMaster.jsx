@@ -78,6 +78,35 @@ export default function AdMaster() {
     );
   };
 
+  const getRecords = async (searchDate) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/admaster/get/${dayjs(searchDate).format(
+          "YYYY-MM-DD"
+        )}`
+      );
+      if (Array.isArray(response.data.data)) {
+        console.log(response.data.data);
+        setCopyList(response.data.data);
+      } else {
+        console.error("Data is not an array:", response.data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const refreshTable = async () => {
+    const updatedData = await axios.get("http://localhost:8000/admaster/get");
+    if (Array.isArray(updatedData.data.data)) {
+      setTableData(updatedData.data.data);
+      setCopyList([]);
+    } else {
+      console.error("Updated data is not an array:", updatedData.data);
+    }
+  };
+
+
   const handleSubmit = async () => {
     try {
       if (editId !== null) {
@@ -136,7 +165,6 @@ export default function AdMaster() {
         //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
           setTableData(response.data.data);
-          //console.log("Table data:", response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
         }
@@ -147,7 +175,6 @@ export default function AdMaster() {
         //console.log("Response:", response1.data);
         if (Array.isArray(response1.data.data)) {
           setAdtypeList(response1.data.data.map((row) => row.adtype));
-          //console.log("AdType data:", response1.data.data);
         } else {
           console.error("Data is not an array:", response1.data);
         }
@@ -158,7 +185,6 @@ export default function AdMaster() {
         //console.log("Response:", response2.data);
         if (Array.isArray(response2.data.data)) {
           setChannelList(response2.data.data.map((row) => row.channel));
-          //console.log("Channel data:", response2.data.data);
         } else {
           console.error("Data is not an array:", response2.data);
         }
@@ -289,7 +315,7 @@ export default function AdMaster() {
                 </Select>
               </FormControl>
             </div>
-            <div className="pt-10 flex justify-center items-center">
+            <div className="pt-5 flex justify-center items-center">
               <Button
                 variant="contained"
                 color="primary"
@@ -304,7 +330,17 @@ export default function AdMaster() {
           </div>
         </div>
 
-        <div className="pt-10 flex gap-10 justify-center items-center">
+        <div className="pt-10 grid grid-cols-5 mx-20 justify-center items-center">
+            <div>
+              <InputLabel>Filter by Date</InputLabel>
+              <DatePicker
+                sx={{ width: "200px" }}
+                onChange={(date) => {
+                  getRecords(date);
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </div>
           <div>
             <InputLabel>Search Channel</InputLabel>
             <TextField
@@ -331,6 +367,18 @@ export default function AdMaster() {
               type="search"
               onInput={(e) => requestSearchAdType(e.target.value)}
             />
+          </div>
+          <div className="pt-5 flex justify-center items-center">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={refreshTable}
+              sx={{
+                backgroundColor: "#a10000",
+              }}
+            >
+              Refresh Table
+            </Button>
           </div>
         </div>
 

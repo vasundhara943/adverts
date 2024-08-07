@@ -8,6 +8,7 @@ import AdType from "../components/AdType";
 import Schedule from "../components/Schedule";
 import AdMaster from "../components/AdMaster";
 import AsRunLog from "../components/AsRunLog";
+import ViewScheduleFile from "../components/ViewScheduleFile";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -24,14 +25,13 @@ const AdDesc = () => {
 
   const handleChange = (event, newTabValue) => {
     setTabValue(newTabValue);
-    console.log("New tab: ", newTabValue);
   };
 
   useEffect(() => {
     const handleAuth = async () => {
       try {
         axios
-          .get("http://localhost:8000/checkauth", {
+          .get("http://localhost:8000/login/checkauth", {
             headers: {
               "access-token": sessionStorage.getItem("token"),
             },
@@ -69,13 +69,9 @@ const AdDesc = () => {
       <Box>
         <AppBar position="static" sx={{ bgcolor: "#a10000" }}>
           <Toolbar className="grid grid-cols-3 items-start">
-            {/* <NavLogo to="/"> */}
             <div>
               <Logo src={LogoImg} />
             </div>
-            {/* </NavLogo> */}
-            {/* <Box > */}
-            {/* // , marginLeft: -190}}> */}
             <Tabs
               tabvalue={tabValue}
               onChange={handleChange}
@@ -86,9 +82,9 @@ const AdDesc = () => {
               <Tab label="Ad Type" />
               <Tab label="Ad Master" />
               <Tab label="Scheduling" />
+              <Tab label="View Schedule File"/>
               <Tab label="As Run Log" />
             </Tabs>
-            {/* </Box> */}
           </Toolbar>
         </AppBar>
       </Box>
@@ -96,7 +92,8 @@ const AdDesc = () => {
         {tabValue === 0 && <AdType />}
         {tabValue === 1 && <AdMaster />}
         {tabValue === 2 && <Schedule />}
-        {tabValue === 3 && <AsRunLog />}
+        {tabValue === 3 && <ViewScheduleFile/>}
+        {tabValue === 4 && <AsRunLog />}
       </div>
     </>
   );

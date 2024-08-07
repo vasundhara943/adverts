@@ -1,41 +1,42 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import InputLabel from "@mui/material/InputLabel";
+import React, { useEffect } from "react";
 import {
-  TextField,
-  Table,
-  TableBody,
   TableCell,
-  TableHead,
   TableRow,
+  Table,
+  TableHead,
+  TableBody,
   TablePagination,
+  Button,
+  InputLabel,
+  TextField,
 } from "@mui/material";
-
+import axios from "axios";
+import dayjs from "dayjs";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import "dayjs/locale/en-gb";
-
-import dayjs from "dayjs";
-import axios from "axios";
 import ExcelExport from "./ExcelExport";
 
-const AsRunLog = () => {
+const ViewScheduleFile = () => {
   const [tableData, setTableData] = React.useState([]);
-  const [copyList, setCopyList] = useState(tableData);
-
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+  const [copyList, setCopyList] = React.useState([]);
   const [searchDate, setSearchDate] = React.useState(dayjs(new Date()));
 
   const columnMapping = {
-    id: "RowID",
-    reconKey: "ReconKey",
-    telecastDate: "Telecast date",
-    tapeID: "Clip ID",
-    eventName: "Caption",
+    id: "ID",
+    dateStr: "File Date",
     telecastTime: "Telecast Time",
+    timebandName: "Timeband Name",
+    requestedTimebandName: "Requested Timeband Name",
+    adType: "Type",
+    tapeID: "Tape ID",
+    eventName: "Event",
+    clientName: "Client Name",
     duration: "Duration",
+    contentType: "Content Type",
+    productName: "Product Name",
+    bookedProgram: "Booked Program",
   };
 
   const handleChangePage = (event, newPage) => {
@@ -47,26 +48,10 @@ const AsRunLog = () => {
     setPage(0);
   };
 
-  const requestSearchTapeID = (searched) => {
-    setCopyList(
-      (copyList.length > 0 && searched != "" ? copyList : tableData).filter(
-        (item) => item.startDate.toLowerCase().includes(searched.toLowerCase())
-      )
-    );
-  };
-
-  const requestSearchAdName = (searched) => {
-    setCopyList(
-      (copyList.length > 0 && searched != "" ? copyList : tableData).filter(
-        (item) => item.adMaster.toLowerCase().includes(searched.toLowerCase())
-      )
-    );
-  };
-
-  const getRecords = async (searchDate) => {
+  const requestSearch = async (searched) => {
     try {
       const response = await axios.post(
-        `http://localhost:8000/asrunlog/get/${dayjs(searchDate).format(
+        `http://localhost:8000/schedule/getfilterfile/${dayjs(searched).format(
           "YYYY-MM-DD"
         )}`
       );
@@ -83,14 +68,16 @@ const AsRunLog = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const today = new Date();
       try {
         const response = await axios.post(
-          `http://localhost:8000/asrunlog/get/${dayjs(new Date()).format(
-            "YYYY-MM-DD"
-          )}`
+          `http://localhost:8000/schedule/getfilterfile/${dayjs(
+            new Date()
+          ).format("YYYY-MM-DD")}`
         );
         //console.log("Response:", response.data);
         if (Array.isArray(response.data.data)) {
+          console.log(response.data.data);
           setTableData(response.data.data);
         } else {
           console.error("Data is not an array:", response.data);
@@ -101,11 +88,11 @@ const AsRunLog = () => {
     };
     fetchData();
   }, []);
-
   return (
     <>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-        <div className="pt-10 flex gap-10 justify-center items-center">
+        <div className="pt-10 mx-20 justify-center items-center grid grid-cols-4">
+          <div className="col-span-1"></div>
           <div>
             <InputLabel>Filter by Date</InputLabel>
             <DatePicker
@@ -113,48 +100,38 @@ const AsRunLog = () => {
               sx={{ width: "200px" }}
               onChange={(date) => {
                 setSearchDate(date);
-                getRecords(date);
+                requestSearch(date);
               }}
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
-          <div>
-            <InputLabel>Search Caption</InputLabel>
-            <TextField
-              variant="outlined"
-              placeholder="Search..."
-              type="search"
-              onInput={(e) => requestSearchAdName(e.target.value)}
-            />
-          </div>
-          <div>
-            <InputLabel>Search Tape ID</InputLabel>
-            <TextField
-              variant="outlined"
-              placeholder="Search..."
-              type="search"
-              onInput={(e) => requestSearchTapeID(e.target.value)}
-            />
-          </div>
-          <div>
-            <ExcelExport data={(copyList.length > 0 ? copyList : tableData)}
+          <div className="pt-5 flex justify-center items-center">
+            <ExcelExport
+              data={(copyList.length > 0 ? copyList : tableData)}
               columnMapping={columnMapping}
-              fileName={`NDTV As Run Log ${dayjs(searchDate).format(
+              fileName={`NDTV Schedule ${dayjs(searchDate).format(
                 "YYYY-MM-DD"
-              )}`} />
+              )}`}
+            />
           </div>
         </div>
         <div className="pt-10 flex justify-center items-center">
           <Table sx={{ minWidth: 500, width: "1150px", margin: "auto" }}>
             <TableHead>
               <TableRow>
-                <TableCell>Row ID</TableCell>
-                <TableCell>ReconKey</TableCell>
-                <TableCell>Telecast Date</TableCell>
-                <TableCell>Tape ID</TableCell>
-                <TableCell>Caption</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>File Date</TableCell>
                 <TableCell>Telecast Time</TableCell>
+                <TableCell>Timeband Name</TableCell>
+                <TableCell>Requested Timeband Name</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Tape ID</TableCell>
+                <TableCell>Event</TableCell>
+                <TableCell>Client Name</TableCell>
                 <TableCell>Duration</TableCell>
+                <TableCell>Content Type</TableCell>
+                <TableCell>Product Name</TableCell>
+                <TableCell>Booked Program</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -163,14 +140,20 @@ const AsRunLog = () => {
                 .map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.id}</TableCell>
-                    <TableCell>{row.reconKey}</TableCell>
-                    <TableCell>
-                      {dayjs(row.telecastDate).format("YYYY-MM-DD")}
-                    </TableCell>
-                    <TableCell>{row.tapeID}</TableCell>
-                    <TableCell> {row.eventName}</TableCell>
+                    <TableCell>{row.dateStr}</TableCell>
                     <TableCell>{row.telecastTime}</TableCell>
+                    <TableCell>{row.timebandName}</TableCell>
+                    <TableCell>{row.requestedTimebandName}</TableCell>
+                    <TableCell>{row.adType}</TableCell>
+                    <TableCell>{row.tapeID}</TableCell>
+                    <TableCell>{row.eventName}</TableCell>
+                    <TableCell>{row.clientName}</TableCell>
                     <TableCell>{row.duration}</TableCell>
+                    <TableCell>{row.contentType}</TableCell>
+                    <TableCell>{row.productName}</TableCell>
+                    <TableCell>{row.bookedProgram}</TableCell>
+                    <TableCell>
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -191,4 +174,4 @@ const AsRunLog = () => {
   );
 };
 
-export default AsRunLog;
+export default ViewScheduleFile;
